@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Oblique Strategies</title>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #050510;
+      --green:    #44ff88;
+      --green-dim:#1a6632;
+      --cyan:     #00d4ff;
+      --text:     #b0c8e0;
+      --text-dim: #3a5a7a;
+      --border:   #1a2a3a;
+    }
+
+    body {
+      background-color: #060608;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
+      font-family: 'Share Tech Mono', 'Courier New', monospace;
+      color: var(--green);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg, transparent, transparent 2px,
+        rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 3px
+      );
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    .site-link {
+      align-self: flex-start;
+      color: var(--text-dim);
+      font-size: 0.8rem;
+      text-decoration: none;
+      letter-spacing: 0.1em;
+      margin-bottom: 2rem;
+      transition: color 0.15s;
+    }
+    .site-link:hover { color: var(--cyan); }
+    .site-link::before { content: "← "; }
+
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    h1 {
+      font-family: 'VT323', monospace;
+      font-size: 3rem;
+      color: var(--green);
+      text-shadow: 0 0 20px rgba(68,255,136,0.6), 0 0 60px rgba(68,255,136,0.2);
+      letter-spacing: 0.1em;
+      line-height: 1;
+    }
+
+    .byline {
+      color: var(--green-dim);
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      margin-top: 0.4rem;
+    }
+
+    .card-wrap {
+      width: 100%;
+      max-width: 640px;
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      border: 1px solid var(--green);
+      background-color: #051f0a;
+      background-image: repeating-linear-gradient(
+        0deg, transparent, transparent 2px,
+        rgba(0,0,0,0.12) 2px, rgba(0,0,0,0.12) 3px
+      );
+      box-shadow: inset 0 0 50px rgba(68,255,136,0.07), 0 0 20px rgba(68,255,136,0.18);
+      padding: 3rem 2.5rem;
+      min-height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .card-label {
+      position: absolute;
+      top: -0.7rem;
+      left: 1.25rem;
+      padding: 0 0.5rem;
+      background: #060608;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      color: var(--green);
+      text-shadow: 0 0 8px rgba(68,255,136,0.7);
+    }
+
+    .card-text {
+      font-family: 'VT323', monospace;
+      font-size: 2.2rem;
+      line-height: 1.3;
+      text-align: center;
+      color: var(--green);
+      text-shadow: 0 0 12px rgba(68,255,136,0.5);
+      letter-spacing: 0.04em;
+      transition: opacity 0.25s ease;
+    }
+
+    .card-text.fade { opacity: 0; }
+
+    .card-empty {
+      font-size: 1rem;
+      color: var(--green-dim);
+      letter-spacing: 0.1em;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      margin-bottom: 2.5rem;
+    }
+
+    button {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 1rem;
+      letter-spacing: 0.12em;
+      background: transparent;
+      border: 1px solid var(--green);
+      color: var(--green);
+      padding: 0.6rem 1.75rem;
+      cursor: pointer;
+      text-shadow: 0 0 6px rgba(68,255,136,0.5);
+      box-shadow: 0 0 10px rgba(68,255,136,0.1);
+      transition: all 0.15s;
+    }
+
+    button:hover {
+      background: rgba(68,255,136,0.08);
+      box-shadow: 0 0 16px rgba(68,255,136,0.3);
+      text-shadow: 0 0 10px rgba(68,255,136,0.9);
+    }
+
+    button:active { transform: scale(0.97); }
+
+    .counter {
+      font-size: 0.8rem;
+      color: var(--green-dim);
+      letter-spacing: 0.1em;
+    }
+
+    .history-section {
+      width: 100%;
+      max-width: 640px;
+    }
+
+    .history-label {
+      font-size: 0.75rem;
+      color: var(--green-dim);
+      letter-spacing: 0.15em;
+      margin-bottom: 0.75rem;
+      border-bottom: 1px solid var(--green-dim);
+      padding-bottom: 0.4rem;
+    }
+
+    .history-list {
+      list-style: none;
+      max-height: 280px;
+      overflow-y: auto;
+    }
+
+    .history-list::-webkit-scrollbar { width: 4px; }
+    .history-list::-webkit-scrollbar-track { background: transparent; }
+    .history-list::-webkit-scrollbar-thumb { background: var(--green-dim); }
+
+    .history-item {
+      display: flex;
+      gap: 1rem;
+      padding: 0.4rem 0;
+      border-bottom: 1px solid rgba(26,102,50,0.3);
+      font-size: 0.88rem;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) { .history-item { animation: none; } }
+
+    .history-num {
+      color: var(--green-dim);
+      min-width: 2.5rem;
+      flex-shrink: 0;
+    }
+
+    .history-text { color: var(--text); }
+
+    .history-empty {
+      color: var(--green-dim);
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+    }
+
+    @media (max-width: 500px) {
+      h1 { font-size: 2.2rem; }
+      .card-text { font-size: 1.7rem; }
+      .card { padding: 2rem 1.5rem; min-height: 140px; }
+    }
+
+    /* ---- HIGH CONTRAST ---- */
+    @media (prefers-contrast: high) {
+      :root {
+        --text-dim: #90b8d8;
+        --green-dim: #44aa66;
+        --border: #4a7a9a;
+      }
+      h1, .card-text, .card-label { text-shadow: none; }
+      button { text-shadow: none; box-shadow: none; }
+      .card { box-shadow: none; background-image: none; }
+      body { background-image: none; }
+      body::after { display: none; }
+    }
+
+    /* ---- A11Y BOOST TOGGLE ---- */
+    #a11y-btn {
+      background: none;
+      border: none;
+      color: var(--green);
+      font-family: 'Share Tech Mono', 'Courier New', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.05em;
+      padding: 0;
+      margin-top: 0.3rem;
+      cursor: pointer;
+      opacity: 0.6;
+      transition: opacity 0.15s, color 0.15s;
+    }
+    #a11y-btn:hover,
+    body.a11y-boost #a11y-btn { opacity: 1; color: var(--green); }
+
+    body.a11y-boost { font-size: 20px; }
+    body.a11y-boost,
+    body.a11y-boost * {
+      color: #ffffff !important;
+      background-color: #000000 !important;
+      text-shadow: none !important;
+      box-shadow: none !important;
+      border-color: #ffffff !important;
+      background-image: none !important;
+    }
+    body.a11y-boost a,
+    body.a11y-boost a:hover { color: #00d4ff !important; }
+    body.a11y-boost #a11y-btn { color: #00ff00 !important; }
+  </style>
+</head>
+<body>
+
+<a href="https://conspicuoustechnologist.com/warez/" class="site-link">warez</a>
+
+<header>
+  <h1>OBLIQUE STRATEGIES</h1>
+  <div class="byline">Brian Eno &amp; Peter Schmidt, 1975 // over one hundred worthwhile dilemmas</div>
+  <button id="a11y-btn" aria-label="Toggle accessibility mode" onclick="toggleA11y()">// too much signal interference? //</button>
+</header>
+
+<div class="card-wrap">
+  <div class="card">
+    <span class="card-label">[ strategy ]</span>
+    <div class="card-text card-empty" id="card-text">// draw a card //</div>
+  </div>
+</div>
+
+<div class="controls">
+  <button id="draw-btn" onclick="draw()">[ draw ]</button>
+  <span class="counter" id="counter"></span>
+</div>
+
+<div class="history-section">
+  <div class="history-label">// session history</div>
+  <div class="history-empty" id="history-empty">nothing drawn yet</div>
+  <ul class="history-list" id="history-list"></ul>
+</div>
+
+<script>
+const DECK = [
+  "Abandon normal instruments",
+  "Accept advice",
+  "Accretion",
+  "A line has two sides",
+  "Allow an easement (an easement is the abandonment of a stricture)",
+  "Are there sections? Consider transitions",
+  "Ask people to work against their better judgment",
+  "Ask your body",
+  "Assemble some of the instruments in a group and treat the group",
+  "Balance the consistency principle with the inconsistency principle",
+  "Be dirty",
+  "Breathe more deeply",
+  "Bridges -build -burn",
+  "Cascades",
+  "Change instrument roles",
+  "Change nothing and continue with immaculate consistency",
+  "Children's voices -speaking -singing",
+  "Cluster analysis",
+  "Consider different fading systems",
+  "Consult other sources -promising -unpromising",
+  "Convert a melodic element into a rhythmic element",
+  "Courage!",
+  "Cut a vital connection",
+  "Decorate, decorate",
+  "Define an area as 'safe' and use it as an anchor",
+  "Destroy -nothing -the most important thing",
+  "Discard an axiom",
+  "Disconnect from desire",
+  "Discover the recipes you are using and abandon them",
+  "Distorting time",
+  "Do nothing for as long as possible",
+  "Don't be afraid of things because they're easy to do",
+  "Don't be frightened of clichés",
+  "Don't be frightened to display your talents",
+  "Don't break the silence",
+  "Don't stress one thing more than another",
+  "Do something boring",
+  "Do the words need changing?",
+  "Do we need holes?",
+  "Emphasize differences",
+  "Emphasize repetitions",
+  "Emphasize the flaws",
+  "Faced with a choice, do both",
+  "Feedback recordings into an influence",
+  "Fill every beat",
+  "Find a safe way of working and use it",
+  "Get your neck massaged",
+  "Ghost echoes",
+  "Give the game away",
+  "Give way to your worst impulse",
+  "Go outside. Shut the door.",
+  "Go slowly all the way round the outside",
+  "Honor thy error as a hidden intention",
+  "How would you have done it?",
+  "Humanize something free of error",
+  "Idiot glee (?)",
+  "Ignore the instructions",
+  "It is quite possible (after all)",
+  "Just carry on",
+  "Left channel, right channel, center channel",
+  "Listen to the quiet voice",
+  "Look at a very small object, look at its center",
+  "Look at the order in which you do things",
+  "Look closely at the most embarrassing details and amplify them",
+  "Lowest common denominator",
+  "Make a blank valuable by putting it in an exquisite frame",
+  "Make an exhaustive list of everything you might do and do the last thing on the list",
+  "Make a sudden, destructive unpredictable action; incorporate",
+  "The most important thing is the thing most easily forgotten",
+  "Move towards the unimportant",
+  "Mute and continue",
+  "Not building a wall but making a brick",
+  "Once the search is in progress, something will be found",
+  "Only one element of each kind",
+  "Overtly resist change",
+  "Put in earplugs",
+  "Remember those quiet evenings",
+  "Remove ambiguities and convert to specifics",
+  "Remove specifics and convert to ambiguities",
+  "Repeat an isolated event",
+  "Repetition is a form of change",
+  "Revaluation (a warm feeling)",
+  "Reverse",
+  "Short circuit (example: a man eating peas with the idea that they will improve his virility shovels them straight into his lap)",
+  "Shut the studio down and leave",
+  "Simply a matter of work",
+  "Slow preparation, fast execution",
+  "Start anywhere",
+  "State the problem in words as clearly as possible",
+  "Take a break",
+  "Take away the elements in order of apparent non-importance",
+  "Tape your mouth (given by Ritva Saarikko)",
+  "The inconsistency principle",
+  "The tape is now the music",
+  "Think -inside the work -outside the work",
+  "Tidy up",
+  "Towards the insignificant",
+  "Trust in the you of now",
+  "Turn it upside down",
+  "Twist the spine",
+  "Use an old idea",
+  "Use an unacceptable color",
+  "Use fewer notes",
+  "Use your own ideas",
+  "Water",
+  "What are you really thinking about just now? Incorporate",
+  "What is the reality of your fingers?",
+  "What mistakes did you make last time?",
+  "What would your closest friend do?",
+  "What wouldn't you do?",
+  "Work at a different speed",
+  "You are an engineer",
+  "You can only make one dot at a time",
+  "Your mistake was a hidden intention",
+];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+let shuffled = shuffle(DECK);
+let pos = 0;
+let total = 0;
+
+const cardEl = document.getElementById('card-text');
+const counterEl = document.getElementById('counter');
+const historyList = document.getElementById('history-list');
+const historyEmpty = document.getElementById('history-empty');
+
+function updateCounter() {
+  counterEl.textContent = total > 0
+    ? `card ${total} // ${DECK.length - pos} remaining`
+    : '';
+}
+
+function draw() {
+  if (pos >= shuffled.length) {
+    shuffled = shuffle(DECK);
+    pos = 0;
+  }
+
+  const card = shuffled[pos++];
+  total++;
+
+  cardEl.classList.add('fade');
+
+  setTimeout(() => {
+    cardEl.textContent = card;
+    cardEl.classList.remove('card-empty');
+    cardEl.classList.remove('fade');
+    updateCounter();
+
+    // add to history
+    historyEmpty.style.display = 'none';
+    const li = document.createElement('li');
+    li.className = 'history-item';
+    li.innerHTML = `<span class="history-num">${String(total).padStart(2,'0')}.</span><span class="history-text">${card}</span>`;
+    historyList.insertBefore(li, historyList.firstChild);
+  }, 250);
+}
+</script>
+<script>
+  function toggleA11y() {
+    const on = document.body.classList.toggle('a11y-boost');
+    localStorage.setItem('a11y', on ? '1' : '0');
+  }
+  if (localStorage.getItem('a11y') === '1') {
+    document.body.classList.add('a11y-boost');
+  }
+</script>
+</body>
+</html>
