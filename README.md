@@ -12,7 +12,7 @@ Open `index.html` in a browser — no build step, no dependencies.
 
 ## Deployment
 
-Copy `index.html` to `conspicuoustechnologist/static/warez/oblique/` to publish to the blog.
+Handled automatically by `conspicuoustechnologist/deploy.sh` — rsync pulls this directory into `static/warez/oblique/` on every deploy.
 
 ## Source
 
